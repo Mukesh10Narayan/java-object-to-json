@@ -20,6 +20,10 @@
       {
         "command": "java-object-to-json.Mukesh",
         "title": "Mukesh"
+      },
+      {
+        "command": "java-object-to-json.generateJSON",
+        "title": "generateJSON"
       }
     ]
   },
@@ -43,6 +47,7 @@
     "typescript": "^5.6.3"
   },
   "dependencies": {
-    "java-object-to-json": "file:"
+    "java-object-to-json": "file:",
+    "java-parser": "^2.3.2"
   }
 }

@@ -1,24 +1,56 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
+async function parseJavaClass(javaCode: string) {
+	const { parse } = await import("java-parser");
+	const parsed = parse(javaCode);
+	const json = generateExampleJson(parsed);
+	return json;
+}
+
+function generateExampleJson(parsedData: any): any {
+	const exampleJson: { [key: string]: any } = {};
+
+	parsedData.body.declarations.forEach((field: any) => {
+		const fieldName = field.name;
+		const fieldType = field.type;
+
+		// Basic type-based example data
+		if (fieldType === 'int' || fieldType === 'Integer') {
+			exampleJson[fieldName] = 123;
+		} else if (fieldType === 'String') {
+			exampleJson[fieldName] = 'sampleText';
+		} else if (fieldType === 'boolean') {
+			exampleJson[fieldName] = true;
+		} else {
+			exampleJson[fieldName] = {};  // Nested objects can be handled here
+		}
+	});
+
+	return exampleJson;
+}
 export function activate(context: vscode.ExtensionContext) {
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "java-object-to-json" is now active!');
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('java-object-to-json.helloWorld', async () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from Java Object to JSON!');
+	const disposable = vscode.commands.registerCommand('java-object-to-json.generateJSON', async () => {
+		const editor = vscode.window.activeTextEditor;
 
-		vscode.window.showErrorMessage('sachavu poo');
+		if (editor) {
+			const document = editor.document;
+			const javaCode = document.getText();
+
+			try {
+				// Parse and generate JSON
+				const exampleJson = parseJavaClass(javaCode);
+				const jsonOutput = JSON.stringify(exampleJson, null, 2);
+
+				// Display JSON in a new editor tab
+				const newDocument = await vscode.workspace.openTextDocument({ content: jsonOutput, language: 'json' });
+				await vscode.window.showTextDocument(newDocument, vscode.ViewColumn.Beside);
+			} catch (error) {
+				vscode.window.showErrorMessage("Failed to generate JSON: ");
+			}
+		}
 	});
 
 	const disposable2 = vscode.commands.registerCommand('java-object-to-json.Mukesh', async () => {
@@ -36,5 +68,4 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(disposable);
 }
 
-// This method is called when your extension is deactivated
 export function deactivate() {}

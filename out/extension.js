@@ -25,35 +25,65 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.activate = activate;
 exports.deactivate = deactivate;
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 const vscode = __importStar(require("vscode"));
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
-function activate(context) {
-    // Use the console to output diagnostic information (console.log) and errors (console.error)
-    // This line of code will only be executed once when your extension is activated
-    console.log('Congratulations, your extension "java-object-to-json" is now active!');
-    // The command has been defined in the package.json file
-    // Now provide the implementation of the command with registerCommand
-    // The commandId parameter must match the command field in package.json
-    const disposable = vscode.commands.registerCommand('java-object-to-json.helloWorld', async () => {
-        // The code you place here will be executed every time your command is executed
-        // Display a message box to the user
-        vscode.window.showInformationMessage('Hello World from Java Object to JSON!');
-        vscode.window.showErrorMessage('sachavu poo');
-    });
-    const disposable2 = vscode.commands.registerCommand('java-object-to-json.Nandu', async () => {
-        const name = await vscode.window.showInputBox({ prompt: 'Enter your name', placeHolder: 'Name' });
-        if (name) {
-            vscode.window.showInformationMessage(`Hello ${name} from Nandu!`);
+async function parseJavaClass(javaCode) {
+    const { parse } = await import("java-parser");
+    const parsed = parse(javaCode);
+    const json = generateExampleJson(parsed);
+    return json;
+}
+function generateExampleJson(parsedData) {
+    const exampleJson = {};
+    parsedData.body.declarations.forEach((field) => {
+        const fieldName = field.name;
+        const fieldType = field.type;
+        // Basic type-based example data
+        if (fieldType === 'int' || fieldType === 'Integer') {
+            exampleJson[fieldName] = 123;
+        }
+        else if (fieldType === 'String') {
+            exampleJson[fieldName] = 'sampleText';
+        }
+        else if (fieldType === 'boolean') {
+            exampleJson[fieldName] = true;
         }
         else {
-            vscode.window.showErrorMessage('Name is required');
+            exampleJson[fieldName] = {}; // Nested objects can be handled here
         }
     });
-    context.subscriptions.push(disposable2);
+    return exampleJson;
 }
-// This method is called when your extension is deactivated
+function activate(context) {
+    console.log('Congratulations, your extension "java-object-to-json" is now active!');
+    const disposable = vscode.commands.registerCommand('java-object-to-json.generateJSON', async () => {
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+            const document = editor.document;
+            const javaCode = document.getText();
+            try {
+                // Parse and generate JSON
+                const exampleJson = parseJavaClass(javaCode);
+                const jsonOutput = JSON.stringify(exampleJson, null, 2);
+                // Display JSON in a new editor tab
+                const newDocument = await vscode.workspace.openTextDocument({ content: jsonOutput, language: 'json' });
+                await vscode.window.showTextDocument(newDocument, vscode.ViewColumn.Beside);
+            }
+            catch (error) {
+                vscode.window.showErrorMessage("Failed to generate JSON: ");
+            }
+        }
+    });
+    const disposable2 = vscode.commands.registerCommand('java-object-to-json.Mukesh', async () => {
+        const name = await vscode.window.showInputBox({ prompt: 'Enter your name' });
+        if (name) {
+            vscode.window.showInformationMessage(`Hello ${name}`);
+        }
+        else {
+            vscode.window.showErrorMessage('Please enter a name');
+        }
+        vscode.window.showErrorMessage('sachavu poo');
+    });
+    context.subscriptions.push(disposable);
+}
 function deactivate() { }
 //# sourceMappingURL=extension.js.map
