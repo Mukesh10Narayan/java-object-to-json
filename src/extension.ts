@@ -21,6 +21,18 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.window.showErrorMessage('sachavu poo');
 	});
 
+	const disposable2 = vscode.commands.registerCommand('java-object-to-json.Mukesh', async () => {
+		const name = await vscode.window.showInputBox({prompt: 'Enter your name'});
+
+		if(name) {
+			vscode.window.showInformationMessage(`Hello ${name}`);
+		}else {
+			vscode.window.showErrorMessage('Please enter a name');
+		}
+
+		vscode.window.showErrorMessage('sachavu poo');
+	});
+
 	context.subscriptions.push(disposable);
 }
 

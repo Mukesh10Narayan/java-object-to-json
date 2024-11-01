@@ -16,6 +16,10 @@
       {
         "command": "java-object-to-json.helloWorld",
         "title": "Hello World"
+      },
+      {
+        "command": "java-object-to-json.Mukesh",
+        "title": "Mukesh"
       }
     ]
   },
